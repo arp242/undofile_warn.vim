@@ -1,0 +1,4 @@
+g:undofile_warn_no_map	undofile_warn.txt	/*g:undofile_warn_no_map*
+undofile-warn	undofile_warn.txt	/*undofile-warn*
+undofile-warn-mappings	undofile_warn.txt	/*undofile-warn-mappings*
+undofile_warn.txt	undofile_warn.txt	/*undofile_warn.txt*
