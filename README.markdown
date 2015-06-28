@@ -1,3 +1,9 @@
+- [This plugin at www.vim.org](http://www.vim.org/scripts/script.php?script_id=5207)
+- [GitHub mirror](https://github.com/vim-scripts/undofile_warn.vim)
+
+----------------
+
+
 The `'undofile'` is a great feature, and I use it a lot. However, one annoyance
 is that it's very easy to accidentally undo changes that I did the last time I
 opened the file; which may be 2 minutes ago, an hour ago, last week, or a
