@@ -25,8 +25,18 @@ augroup undofile_warn
 	autocmd BufReadPost,BufCreate,BufNewFile *
 		\  let b:undofile_warn_saved = undotree()['seq_cur']
 		\| let b:undofile_warn_warned = []
+	autocmd! InsertEnter * let b:undofile_warn_warned = []
 	"autocmd BufReadPost * call s:check_valid_file()
+
+	" Reset the warning after inserting text. For example you press 'u', then
+	" insert text, and press 'u' several times again: you don't get a warning
+	" anymore.
+	autocmd TextChanged,TextChangedI let b:undofile_warn_warned = []
 augroup end
+
+if !exists('g:undofile_warn_prevent')
+	let g:undofile_warn_prevent = 1
+endif
 
 
 "##########################################################
@@ -35,6 +45,7 @@ augroup end
 nnoremap <silent> <expr> <Plug>(undofile-warn-undo)  undofile_warn#undo()
 nnoremap <silent>        <Plug>(undofile-warn-redo)  <C-r>:call undofile_warn#redo()<CR>
 
+" TODO: What about |g-|? |U|? More?
 if !exists('g:undofile_warn_no_map') || empty(g:undofile_warn_no_map)
 	nmap u     <Plug>(undofile-warn-undo)
 	nmap <C-r> <Plug>(undofile-warn-redo)
@@ -45,32 +56,32 @@ endif
 " Functions
 
 
-fun! undofile_warn#undo()
+fun! undofile_warn#undo() abort
 	" Don't do anything if we can't modify the buffer or there's no filename
 	if !&l:modifiable || expand('%') == '' | return 'u' | endif
 
 	let l:cur = undotree()['seq_cur']
 
-	" Warn again after moving the cursor or inserting text.
-	" For example you press 'u', then move the cursor about and/or insert text,
-	" and press 'u' several times again: you don't get a warning anymore.
-	if !empty(b:undofile_warn_warned) && add(getpos('.'), l:cur) != b:undofile_warn_warned
-		let b:undofile_warn_warned = []
-	endif
-
 	" Warn if the current undo sequence is lower (older) than whatever it was
 	" when opening the file
 	if empty(b:undofile_warn_warned) && l:cur <= b:undofile_warn_saved
 		let b:undofile_warn_warned = add(getpos('.'), l:cur)
-		echohl ErrorMsg | echo 'Using undofile; press u again to undo.' | echohl None
-		return ''
+
+		if !g:undofile_warn_prevent
+			echohl ErrorMsg | echo 'Using undofile.' | echohl None
+			sleep 1
+			return 'u"'
+		else
+			echohl ErrorMsg | echo 'Using undofile; press u again to undo.' | echohl None
+			return ''
+		endif
 	else
 		return 'u'
 	endif
 endfun
 
 
-fun! undofile_warn#redo()
+fun! undofile_warn#redo() abort
 	" Don't do anything if we can't modify the buffer or there's no filename
 	if !&l:modifiable || expand('%') == '' | return | endif
 
@@ -82,7 +93,7 @@ endfun
 	
 
 " Do something sane when an error occurred.
-fun! s:check_valid_file()
+fun! s:check_valid_file() abort
 	" E823: Not an undo file: /home/martin/.vim/tmp/undo/%home%martin%src%qutebrowser%tests%utils%test_urlutils.py 
 	" I've sometimes had it happen that after a crash (Vim or system) the undo
 	" file is completely empty, in which case it makes no sense keeping it.

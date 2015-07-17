@@ -6,7 +6,7 @@ INTRODUCTION                                                   *undofile-warn*
 The 'undofile' is a great feature, and I use it a lot. However, one annoyance
 is that it's very easy to accidentally undo changes that I did the last time I
 opened the file; which may be 2 minutes ago, an hour ago, last week, or a
-month ago.
+year ago.
 So what would happen is that sometimes I would accidentally undo changes from
 ages ago.
 
@@ -26,6 +26,13 @@ This plugin overwrites the |u| and |<C-r>| mappings:
 	nmap <C-r> <Plug>(undofile-warn-redo)
 <
 You can prevent this by setting *g:undofile_warn_no_map* to 1.
+
+==============================================================================
+OPTIONS                                                *undofile-warn-options*
+
+*g:undofile_warn_prevent*              (Boolean, default: 1)
+        Prevent the |u| from actually undoing when we warm; if set to 0, we
+        will warn _and_ undo.
 
 
 vim:tw=78:ts=8:ft=help:norl:expandtab
