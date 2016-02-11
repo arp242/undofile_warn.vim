@@ -55,8 +55,10 @@ endif
 "##########################################################
 " Functions
 
-
 fun! undofile_warn#undo() abort
+	" This happens when :noau is used; doing nothing is probably best
+	if !exists('b:undofile_warn_warned') | return 'u' | endif
+
 	" Don't do anything if we can't modify the buffer or there's no filename
 	if !&l:modifiable || expand('%') == '' | return 'u' | endif
 
@@ -82,6 +84,9 @@ endfun
 
 
 fun! undofile_warn#redo() abort
+	" This happens when :noau is used; doing nothing is probably best
+	if !exists('b:undofile_warn_warned') | return 'u' | endif
+
 	" Don't do anything if we can't modify the buffer or there's no filename
 	if !&l:modifiable || expand('%') == '' | return | endif
 
@@ -109,7 +114,7 @@ unlet s:save_cpo
 
 " The MIT License (MIT)
 "
-" Copyright © 2015 Martin Tournoij
+" Copyright © 2015-2016 Martin Tournoij
 "
 " Permission is hereby granted, free of charge, to any person obtaining a copy
 " of this software and associated documentation files (the "Software"), to
