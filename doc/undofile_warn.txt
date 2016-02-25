@@ -20,17 +20,18 @@ http://vi.stackexchange.com/q/2115/51
 ==============================================================================
 MAPPINGS                                              *undofile-warn-mappings*
 
-This plugin overwrites the |u| and |<C-r>| mappings:
+This plugin overwrites the |u| and |CTRL-R| mappings:
 >
-	nmap u     <Plug>(undofile-warn-undo)
-	nmap <C-r> <Plug>(undofile-warn-redo)
+        nmap u     <Plug>(undofile-warn-undo)
+        nmap <C-r> <Plug>(undofile-warn-redo)
 <
 You can prevent this by setting *g:undofile_warn_no_map* to 1.
 
 ==============================================================================
 OPTIONS                                                *undofile-warn-options*
 
-*g:undofile_warn_prevent*              (Boolean, default: 1)
+*g:undofile_warn_prevent*                                (Boolean, default: 1)
+
         Prevent the |u| from actually undoing when we warm; if set to 0, we
         will warn _and_ undo.
 
