@@ -4,7 +4,6 @@
 "
 " See the bottom of this file for copyright & license information.
 
-
 "##########################################################
 " Initialize some stuff
 scriptencoding utf-8
@@ -34,8 +33,8 @@ augroup undofile_warn
 	autocmd TextChanged,TextChangedI let b:undofile_warn_warned = []
 augroup end
 
-if !exists('g:undofile_warn_prevent')
-	let g:undofile_warn_prevent = 1
+if !exists('g:undofile_warn_mode')
+	let g:undofile_warn_mode = 1
 endif
 
 
@@ -69,13 +68,22 @@ fun! undofile_warn#undo() abort
 	if empty(b:undofile_warn_warned) && l:cur <= b:undofile_warn_saved
 		let b:undofile_warn_warned = add(getpos('.'), l:cur)
 
-		if !g:undofile_warn_prevent
+		if g:undofile_warn_mode == 0
 			echohl ErrorMsg | echo 'Using undofile.' | echohl None
 			sleep 1
-			return 'u"'
-		else
+			return 'u'
+		elseif g:undofile_warn_mode == 1
 			echohl ErrorMsg | echo 'Using undofile; press u again to undo.' | echohl None
 			return ''
+		elseif g:undofile_warn_mode == 2
+			if confirm('Use undofile? ', "&Yes\n&No", 2) == 1
+				return 'u'
+			else
+				let b:undofile_warn_warned = []
+				return ''
+			endif
+		else
+			echoerr 'Invalid value for g:undofile_warn_mode: ' . g:undofile_warn_mode
 		endif
 	else
 		return 'u'
@@ -85,7 +93,7 @@ endfun
 
 fun! undofile_warn#redo() abort
 	" This happens when :noau is used; doing nothing is probably best
-	if !exists('b:undofile_warn_warned') | return 'u' | endif
+	if !exists('b:undofile_warn_warned') | return | endif
 
 	" Don't do anything if we can't modify the buffer or there's no filename
 	if !&l:modifiable || expand('%') == '' | return | endif
