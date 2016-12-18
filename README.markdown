@@ -1,6 +1,4 @@
-[This plugin at www.vim.org](http://www.vim.org/scripts/script.php?script_id=5207)
-
------------------------------------------
+[![This project is considered stable](https://img.shields.io/badge/Status-stable-green.svg)](https://arp242.net/status/stable)
 
 Introduction
 ============
