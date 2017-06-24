@@ -28,6 +28,16 @@ This plugin overwrites the |u| and |CTRL-R| mappings:
 You can prevent this by setting *g:undofile_warn_no_map* to 1.
 
 ==============================================================================
+COMMANDS                                              *undofile-warn-commands*
+
+*:UndofileEnable* {yes,no,toggle}
+
+        Enable or disable the the functionality in this plugin; useful if you
+        don't want to be bugged about the undofile for a while.
+
+        It's enabled by default.
+
+==============================================================================
 OPTIONS                                                *undofile-warn-options*
 
 *g:undofile_warn_mode*                                   (Boolean, default: 1)
@@ -36,6 +46,7 @@ OPTIONS                                                *undofile-warn-options*
         1   Show a warning and do nothing on the first |u| press, confirm with
             pressing |u| again.
         2   Ask for explicit confirmation
+        3   Just warn, never undo. Use |:UndofileEnable| to undo anyway.
 
 
 vim:tw=78:ts=8:ft=help:norl:expandtab

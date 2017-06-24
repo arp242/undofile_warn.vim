@@ -12,6 +12,9 @@ let g:loaded_undofile_warn = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
+" Keep track if this is enabled with :UndofileEnable
+let s:enabled = 1
+
 
 "##########################################################
 " The default settings
@@ -52,9 +55,29 @@ endif
 
 
 "##########################################################
+" Commands
+command! -nargs=1 UndofileEnable call s:undofile_enable(<q-args>)
+
+
+"##########################################################
 " Functions
 
+fun! s:undofile_enable(st) abort
+	if a:st ==? 'yes' || a:st == '1'
+		let s:enabled = 1
+	elseif a:st ==? 'no' || a:st == '0'
+		let s:enabled = 0
+	elseif a:st ==? 'toggle'
+		let s:enabled = {0: 1, 1: 0}[s:enabled]
+	else
+		echoerr 'Unknown value: ' . a:st
+	endif
+endfun
+
 fun! undofile_warn#undo() abort
+	" :UndofileEnabled no
+	if !s:enabled | return 'u' | endif
+
 	" This happens when :noau is used; doing nothing is probably best
 	if !exists('b:undofile_warn_warned') | return 'u' | endif
 
@@ -63,30 +86,40 @@ fun! undofile_warn#undo() abort
 
 	let l:cur = undotree()['seq_cur']
 
-	" Warn if the current undo sequence is lower (older) than whatever it was
-	" when opening the file
-	if empty(b:undofile_warn_warned) && l:cur <= b:undofile_warn_saved
-		let b:undofile_warn_warned = add(getpos('.'), l:cur)
+	" Undoing before we've hit the undofile
+	if b:undofile_warn_saved < l:cur | return 'u' | endif
 
-		if g:undofile_warn_mode == 0
-			echohl ErrorMsg | echo 'Using undofile.' | echohl None
-			sleep 1
+	" Always prevent
+	if g:undofile_warn_mode == 3
+		echohl ErrorMsg | echo 'Using undofile prevented; use ":UndofileEnable no" to continue.' | echohl None
+		return ''
+	endif
+
+	" We warned already: so let's just undo!
+	if !empty(b:undofile_warn_warned) | return 'u' | endif
+
+	" Set warn point
+	let b:undofile_warn_warned = add(getpos('.'), l:cur)
+
+	" Warn but continue
+	if g:undofile_warn_mode == 0
+		echohl ErrorMsg | echo 'Using undofile.' | echohl None
+		sleep 1
+		return 'u'
+	" Double-tap!
+	elseif g:undofile_warn_mode == 1
+		echohl ErrorMsg | echo 'Using undofile; press u again to undo.' | echohl None
+		return ''
+	" Ask.
+	elseif g:undofile_warn_mode == 2
+		if confirm('Use undofile? ', "&Yes\n&No", 2) == 1
 			return 'u'
-		elseif g:undofile_warn_mode == 1
-			echohl ErrorMsg | echo 'Using undofile; press u again to undo.' | echohl None
-			return ''
-		elseif g:undofile_warn_mode == 2
-			if confirm('Use undofile? ', "&Yes\n&No", 2) == 1
-				return 'u'
-			else
-				let b:undofile_warn_warned = []
-				return ''
-			endif
 		else
-			echoerr 'Invalid value for g:undofile_warn_mode: ' . g:undofile_warn_mode
+			let b:undofile_warn_warned = []
+			return ''
 		endif
 	else
-		return 'u'
+		echoerr 'Invalid value for g:undofile_warn_mode: ' . g:undofile_warn_mode
 	endif
 endfun
 
