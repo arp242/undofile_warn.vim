@@ -1,23 +1,14 @@
 " undofile_warn.vim: Warn when using the undofile.
-"
 " http://code.arp242.net/undofile.vim
-"
-" See the bottom of this file for copyright & license information.
 
-"##########################################################
-" Initialize some stuff
 scriptencoding utf-8
 if exists('g:loaded_undofile_warn') | finish | endif
 let g:loaded_undofile_warn = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
-" Keep track if this is enabled with :UndofileEnable
-let s:enabled = 1
+let s:enabled = 1 " Keep track if this is enabled with :UndofileEnable
 
-
-"##########################################################
-" The default settings
 
 set undofile
 
@@ -41,9 +32,6 @@ if !exists('g:undofile_warn_mode')
 endif
 
 
-"##########################################################
-" Mappings
-
 nnoremap <silent> <expr> <Plug>(undofile-warn-undo)  undofile_warn#undo()
 nnoremap <silent>        <Plug>(undofile-warn-redo)  <C-r>:call undofile_warn#redo()<CR>
 
@@ -53,14 +41,7 @@ if !exists('g:undofile_warn_no_map') || empty(g:undofile_warn_no_map)
 	nmap <C-r> <Plug>(undofile-warn-redo)
 endif
 
-
-"##########################################################
-" Commands
 command! -nargs=1 UndofileEnable call s:undofile_enable(<q-args>)
-
-
-"##########################################################
-" Functions
 
 fun! s:undofile_enable(st) abort
 	if a:st ==? 'yes' || a:st == '1'
@@ -77,6 +58,7 @@ endfun
 fun! undofile_warn#undo() abort
 	" :UndofileEnabled no
 	if !s:enabled | return 'u' | endif
+	if !exists('b:undofile_warn_saved') | return 'u' | endif
 
 	" This happens when :noau is used; doing nothing is probably best
 	if !exists('b:undofile_warn_warned') | return 'u' | endif
@@ -151,26 +133,3 @@ endfun
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
-
-
-" The MIT License (MIT)
-"
-" Copyright © 2015-2016 Martin Tournoij
-"
-" Permission is hereby granted, free of charge, to any person obtaining a copy
-" of this software and associated documentation files (the "Software"), to
-" deal in the Software without restriction, including without limitation the
-" rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-" sell copies of the Software, and to permit persons to whom the Software is
-" furnished to do so, subject to the following conditions:
-"
-" The above copyright notice and this permission notice shall be included in
-" all copies or substantial portions of the Software.
-"
-" The software is provided "as is", without warranty of any kind, express or
-" implied, including but not limited to the warranties of merchantability,
-" fitness for a particular purpose and noninfringement. In no event shall the
-" authors or copyright holders be liable for any claim, damages or other
-" liability, whether in an action of contract, tort or otherwise, arising
-" from, out of or in connection with the software or the use or other dealings
-" in the software.
